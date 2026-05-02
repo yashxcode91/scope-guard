@@ -1,0 +1,11 @@
+.env
+.venv/
+node_modules/
+.next/
+Project/data/cache/
+.orchestrator/
+*.db
+__pycache__/
+.pytest_cache/
+*.pyc
+.pytest_tmp/
