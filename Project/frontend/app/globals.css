@@ -1,0 +1,196 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: dark;
+  /* Colour is evidence: risk hues mean risk, violet means a model wrote it,
+     chalk means you can act on it. Everything else is graphite. */
+  --canvas: #18171D;
+  --surface: #201F27;
+  --surface-raised: #2A2933;
+  --line: #383645;
+  --line-strong: #4A4859;
+  --text: #EEECF3;
+  --muted: #9E9AAD;
+  --chalk: #F4F2F8;
+  --model: #B49BFF;
+  --model-deep: #8B6CF0;
+  --impact-low: #3CC4A3;
+  --impact-med: #F2B544;
+  --impact-high: #FF6A55;
+  --warn: #F2B544;
+  --background: var(--canvas);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--text);
+  --primary: var(--chalk);
+  --primary-foreground: var(--canvas);
+  --secondary: var(--surface-raised);
+  --secondary-foreground: var(--text);
+  --muted-foreground: var(--muted);
+  --accent: var(--surface-raised);
+  --accent-foreground: var(--chalk);
+  --destructive: var(--impact-high);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--chalk);
+  --chart-1: var(--impact-low);
+  --chart-2: var(--impact-med);
+  --chart-3: var(--impact-high);
+  --chart-4: var(--model);
+  --chart-5: var(--muted);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--chalk);
+  --sidebar-primary-foreground: var(--canvas);
+  --sidebar-accent: var(--surface-raised);
+  --sidebar-accent-foreground: var(--chalk);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--chalk);
+  --radius: 0.5rem;
+}
+
+/* Light theme: same roles, inverted ground. Chalk (interactive) becomes ink. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --canvas: #F5F4F8;
+  --surface: #FFFFFF;
+  --surface-raised: #EEECF3;
+  --line: #DDDAE5;
+  --line-strong: #BDB8CB;
+  --text: #1B1A21;
+  --muted: #625E70;
+  --chalk: #1B1A21;
+  --model: #6A4BD6;
+  --model-deep: #6A4BD6;
+  --impact-low: #13866B;
+  --impact-med: #A86A0A;
+  --impact-high: #C93A26;
+  --warn: #A86A0A;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary-foreground: #FFFFFF;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-chalk: var(--chalk);
+  --color-model: var(--model);
+  --color-model-deep: var(--model-deep);
+  --color-line-strong: var(--line-strong);
+  --color-impact-low: var(--impact-low);
+  --color-impact-med: var(--impact-med);
+  --color-impact-high: var(--impact-high);
+  --color-warn: var(--warn);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-mona-sans), sans-serif;
+  --font-heading: var(--font-mona-sans), sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-2xl: 1.5rem;
+  --text-4xl: 2.5rem;
+  --text-meta: 0.75rem;
+  --text-dense: 0.8125rem;
+  --text-body: 0.9375rem;
+  --text-section: 1.125rem;
+  --text-title: 1.5rem;
+  --text-hero: 3rem;
+  --radius-sm: 0.25rem;
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: 0.75rem;
+}
+
+@layer base {
+  * { @apply border-line; }
+  html { @apply font-sans; font-variant-numeric: tabular-nums; }
+  body { @apply bg-canvas text-text text-body; margin: 0; line-height: 1.55; }
+  h1 { @apply text-title font-semibold; font-stretch: 112%; letter-spacing: -0.01em; }
+  h2, h3 { @apply text-section font-semibold; letter-spacing: -0.005em; }
+  :focus-visible { outline: 2px solid var(--chalk); outline-offset: 2px; }
+  ::selection { background: var(--model-deep); color: #FFFFFF; }
+}
+
+/* A faint grid behind the dependency graph, like a planning board. */
+@utility graph-grid {
+  background-color: var(--canvas);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--line) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 45%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Scores read like instrument readouts: condensed, heavy, tabular. */
+@utility numeral {
+  font-stretch: 75%;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* Anything clickable that is text: chalk with a quiet underline. */
+@utility link-ui {
+  color: var(--chalk);
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, var(--chalk) 30%, transparent);
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms;
+  &:hover { text-decoration-color: var(--chalk); }
+}
+
+/* Hairline-divided readout rows that wrap instead of scrolling sideways. */
+@utility readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  overflow: hidden;
+  & > * { border-left: 1px solid var(--line); margin-left: -1px; padding: 0.25rem 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
