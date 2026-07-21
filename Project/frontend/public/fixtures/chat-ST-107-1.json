@@ -1,0 +1,24 @@
+{
+  "answer": "- **Security risk is high (score 93)** – driven by:\n  - **Card data** (25 pts) – impacts `atm`, `card-service`, `fraud-engine`.\n  - **Auth flow change** (25 pts) – impacts `api-gateway`, `authentication-service`, `card-service`, `mobile-banking`.\n  - **External API contract** (15 pts) – impacts `api-gateway`, `authentication-service`, `card-service`, `mobile-banking`.\n\n- **Compliance risk is high (score 75)** – driven by:\n  - **Card data** (30 pts) – impacts `card-service`.\n  - **PII data** (20 pts) – impacts `api-gateway`, `authentication-service`, `card-service`, `mobile-banking`.\n  - **Financial data** (20 pts) – impacts `api-gateway`, `mobile-banking`.\n\n- **Operational risk is high (score 71)** – driven by:\n  - **Service criticality** (40 pts) – impacts `api-gateway`, `authentication-service`.\n  - **Downstream systems** (20 pts) – impacts many services (e.g., `account-service`, `atm`, `branch-portal`, …).\n  - **Deployment groups** (6 pts) – impacts the same broad set of services.\n\nThese high‑scoring dimensions push the overall risk to 85, triggering the NO‑GO release decision.",
+  "cited_nodes": [
+    "mobile-banking",
+    "atm",
+    "branch-portal",
+    "account-service",
+    "card-service",
+    "authentication-service",
+    "api-gateway",
+    "fraud-engine"
+  ],
+  "cited_factors": [
+    "card data",
+    "auth flow change",
+    "external API contract",
+    "pii data",
+    "financial data",
+    "service criticality",
+    "downstream systems",
+    "deployment groups"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

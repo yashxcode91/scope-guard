@@ -1,0 +1,6 @@
+{
+  "answer": "The release confidence is 78 / 100, which is considered moderate/low because:\n\n- **Medium complexity** – the release.complexity field is set to “medium”.  \n- **Coordination dependencies** – the release notes require ordering with ST‑101 (core‑payments deployment group) and verification of rule ordering, combined ST‑101/ST‑110 regression evidence, and agreed release timing.  \n- **Deployment sequencing** – the core‑banking group must be deployed first (transaction‑db), then the core‑payments group (risk‑engine before fraud‑engine), adding operational steps that increase uncertainty.  \n- **Risk profile** – overall risk score is 39, with a medium‑level compliance risk (score 50) and other risk dimensions (security, operational, performance) contributing to uncertainty.  \n\nThese factors together lower the confidence despite the “GO” decision.",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

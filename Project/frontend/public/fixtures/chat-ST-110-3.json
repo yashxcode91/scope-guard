@@ -1,0 +1,6 @@
+{
+  "answer": "- **ST-110** – overall risk score **39** (with the highest‑scoring dimension being **compliance** at **50 / 100**, medium risk). This indicates the story carries notable risk, primarily from compliance considerations.",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

@@ -1,0 +1,10 @@
+{
+  "answer": "The risk is **not high**; it is assessed as low.  \n\n- Overall risk score: **12** (level = low)【context.risk.overall】.  \n- The highest‑scoring dimension is **delivery** with a score of **14** (still low)【context.risk.delivery.score】.  \n\nThe delivery dimension’s score comes from:  \n- low ambiguity (+10)【context.risk.delivery.top_factors[0].label】,  \n- baseline (+5)【context.risk.delivery.top_factors[1].label】,  \n- direct services (+5)【context.risk.delivery.top_factors[2].label】.  \n\nAll other risk dimensions (security, compliance, technical, operational, performance) also have low scores (≤ 12)【context.risk.dimensions】. Hence, the change poses low risk overall.",
+  "cited_nodes": [],
+  "cited_factors": [
+    "baseline",
+    "direct services",
+    "low ambiguity"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

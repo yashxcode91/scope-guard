@@ -1,0 +1,13 @@
+{
+  "answer": "- **Directly changed component:** fraud-engine【impact.directly_changed】  \n- **Services impacted:** fraud-engine, risk-engine, transaction-db【impact.services】  \n- **Databases impacted:** transaction-db【impact.databases】  \n- **APIs impacted:**  \n  - GET /internal/ledger/accounts/{id}/daily-total  \n  - GET /internal/ledger/entries/{id}  \n  - GET /risk/policies/{id}  \n  - POST /fraud/screenings  \n  - POST /fraud/velocity-checks  \n  - POST /internal/ledger/entries  \n  - POST /risk/assessments  \n  - PUT /fraud/rules/{id}  \n  - PUT /risk/policies/{id}【impact.apis】  \n- **Downstream systems impacted:** risk-engine, transaction-db【impact.downstream】  \n- **Deployment groups impacted:** core-banking, core-payments【impact.deployment_groups】",
+  "cited_nodes": [
+    "transaction-db",
+    "fraud-engine",
+    "risk-engine"
+  ],
+  "cited_factors": [
+    "downstream systems",
+    "deployment groups"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

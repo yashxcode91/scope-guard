@@ -1,0 +1,9 @@
+{
+  "answer": "- **Directly changed services:** payment‑service, account‑service  \n- **All impacted services:** account‑service, customer‑db, fraud‑engine, notification‑service, payment‑service, transaction‑db  \n- **Impacted databases:** customer‑db, transaction‑db  \n- **Downstream systems:** customer‑db, fraud‑engine, notification‑service, transaction‑db  \n- **Deployment groups affected:** core‑banking, core‑payments, customer‑platform  \n- **Impacted APIs (selected):** GET /accounts/{id}/balance, GET /accounts/{id}/limits, GET /internal/customer-store/profiles/{id}, GET /internal/ledger/accounts/{id}/daily-total, POST /payments, POST /fraud/screenings, PUT /accounts/{id}/limits, etc. (full list in the analysis).",
+  "cited_nodes": [],
+  "cited_factors": [
+    "downstream systems",
+    "deployment groups"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

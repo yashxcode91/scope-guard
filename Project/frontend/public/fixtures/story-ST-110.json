@@ -1,0 +1,1394 @@
+{
+  "story": {
+    "id": "ST-110",
+    "title": "Fraud rule update: velocity check for card-not-present payments",
+    "description": "Update the fraud rule in fraud-engine to add a rolling velocity check for card-not-present payments. The payment-service must supply the existing payment event attributes and apply the returned screening decision before posting. The risk engine provides the current policy signal used when the threshold is exceeded. Block the sixth attempt for the same card token within a rolling sixty-second window, including declined attempts. This change shares the payment screening path and core-payments deployment with ST-101, so both stories must agree on rule ordering, combined regression coverage and rollout timing.",
+    "type": "story",
+    "acceptance_criteria": [
+      "The first five card-not-present attempts for one card token inside sixty seconds are evaluated normally; the sixth is blocked by the velocity rule.",
+      "Declined attempts count toward the velocity window, while distinct card tokens maintain independent counters.",
+      "fraud-engine includes the active risk-engine policy signal and rule version in its screening decision.",
+      "Combined ST-101 and ST-110 regression evidence confirms premium payment limits cannot bypass fraud screening; their core-payments release order is agreed."
+    ]
+  },
+  "requirement": {
+    "business_summary": "Card-not-present payments will be screened by a new rolling velocity rule: the first five attempts on a single card token within sixty seconds are evaluated normally, and the sixth is blocked. Declined attempts count toward the window, while each distinct card token keeps its own counter. The rule supports the existing premium payment limit controls rather than replacing them, so limit checks cannot be bypassed by fraud screening.",
+    "technical_summary": "The fraud-engine rule set gains a rolling sixty-second velocity counter keyed by card token for card-not-present payment events, counting declined attempts and blocking the sixth attempt. The screening decision returned by fraud-engine continues to be applied by payment-service before posting, and fraud-engine now includes the active risk-engine policy signal and the rule version in that decision. Rule ordering, combined regression coverage and release ordering are shared with ST-101 on the core-payments deployment.",
+    "business_domain": "Payments and Fraud Risk",
+    "affected_capabilities": [
+      "Card-not-present payment fraud screening",
+      "Payment velocity rule enforcement",
+      "Fraud rule versioning and policy signal exposure"
+    ],
+    "affected_services": [
+      "fraud-engine"
+    ],
+    "change_type": "business_rule_change",
+    "touches_customer_data": false,
+    "touches_card_data": true,
+    "touches_financial_data": true,
+    "changes_auth_flow": false,
+    "changes_external_api_contract": false,
+    "changes_db_schema": false,
+    "ambiguity": "low",
+    "engineering_scope": "Small, contained change: one velocity rule added to the existing fraud rule set in fraud-engine, keyed by card token with a sixty-second rolling window and a sixth-attempt block. No new service, endpoint, schema or auth change; payment-service and risk-engine continue to use their existing screening call and policy signal. Main coordination work is rule ordering, combined ST-101/ST-110 regression evidence and agreed core-payments release timing.",
+    "source": "tokenharbor:deepseek-v4.1-flash:free"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "account-service",
+        "label": "Account Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -94.5,
+        "y": 536.0,
+        "criticality": 9,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial",
+          "pii"
+        ]
+      },
+      {
+        "id": "api-gateway",
+        "label": "API Gateway",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 94.5,
+        "y": -536.0,
+        "criticality": 10,
+        "owner_team": "Identity & Access",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "atm",
+        "label": "ATM Network",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 511.5,
+        "y": 186.2,
+        "criticality": 7,
+        "owner_team": "Assisted Channels",
+        "data_classes": [
+          "card",
+          "financial"
+        ]
+      },
+      {
+        "id": "audit-db",
+        "label": "Audit Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -417.0,
+        "y": -349.9,
+        "criticality": 8,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "audit"
+        ]
+      },
+      {
+        "id": "authentication-service",
+        "label": "Authentication Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 272.2,
+        "y": -471.4,
+        "criticality": 10,
+        "owner_team": "Identity & Access",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "branch-portal",
+        "label": "Branch Portal",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 417.0,
+        "y": 349.9,
+        "criticality": 6,
+        "owner_team": "Assisted Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "card-service",
+        "label": "Card Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -272.2,
+        "y": 471.4,
+        "criticality": 9,
+        "owner_team": "Cards Platform",
+        "data_classes": [
+          "card",
+          "pii"
+        ]
+      },
+      {
+        "id": "crm",
+        "label": "Customer Relationship Management",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -417.0,
+        "y": 349.9,
+        "criticality": 6,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "customer-db",
+        "label": "Customer Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -272.2,
+        "y": -471.4,
+        "criticality": 9,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "customer-service",
+        "label": "Customer Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -511.5,
+        "y": 186.2,
+        "criticality": 8,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "document-service",
+        "label": "Document Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 417.0,
+        "y": -349.9,
+        "criticality": 4,
+        "owner_team": "Document Operations",
+        "data_classes": []
+      },
+      {
+        "id": "fraud-engine",
+        "label": "Fraud Engine",
+        "type": "analytics",
+        "hop": 0,
+        "severity": "medium",
+        "x": 0.0,
+        "y": 0.0,
+        "criticality": 9,
+        "owner_team": "Payments Platform",
+        "data_classes": [
+          "financial",
+          "card"
+        ]
+      },
+      {
+        "id": "loan-service",
+        "label": "Loan Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -544.3,
+        "y": 0.0,
+        "criticality": 8,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial",
+          "pii"
+        ]
+      },
+      {
+        "id": "mobile-banking",
+        "label": "Mobile Banking",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 272.2,
+        "y": 471.4,
+        "criticality": 8,
+        "owner_team": "Digital Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "notification-service",
+        "label": "Notification Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 511.5,
+        "y": -186.2,
+        "criticality": 6,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "payment-service",
+        "label": "Payment Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -511.5,
+        "y": -186.2,
+        "criticality": 10,
+        "owner_team": "Payments Platform",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "reporting-db",
+        "label": "Reporting Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -94.5,
+        "y": -536.0,
+        "criticality": 6,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "reporting-service",
+        "label": "Reporting Service",
+        "type": "analytics",
+        "hop": null,
+        "severity": null,
+        "x": 544.3,
+        "y": 0.0,
+        "criticality": 5,
+        "owner_team": "Data & Analytics",
+        "data_classes": []
+      },
+      {
+        "id": "risk-engine",
+        "label": "Risk Engine",
+        "type": "analytics",
+        "hop": 1,
+        "severity": "low",
+        "x": 0.0,
+        "y": 170.0,
+        "criticality": 8,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "transaction-db",
+        "label": "Transaction Ledger Database",
+        "type": "database",
+        "hop": 1,
+        "severity": "medium",
+        "x": -0.0,
+        "y": -170.0,
+        "criticality": 10,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "web-banking",
+        "label": "Web Banking",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 94.5,
+        "y": 536.0,
+        "criticality": 8,
+        "owner_team": "Digital Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "account-service->audit-db",
+        "source": "account-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->authentication-service",
+        "source": "account-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->customer-db",
+        "source": "account-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->transaction-db",
+        "source": "account-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->account-service",
+        "source": "api-gateway",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->audit-db",
+        "source": "api-gateway",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->authentication-service",
+        "source": "api-gateway",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->card-service",
+        "source": "api-gateway",
+        "target": "card-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->crm",
+        "source": "api-gateway",
+        "target": "crm",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->customer-service",
+        "source": "api-gateway",
+        "target": "customer-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->document-service",
+        "source": "api-gateway",
+        "target": "document-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->loan-service",
+        "source": "api-gateway",
+        "target": "loan-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->payment-service",
+        "source": "api-gateway",
+        "target": "payment-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->api-gateway",
+        "source": "atm",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->audit-db",
+        "source": "atm",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->authentication-service",
+        "source": "atm",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "authentication-service->audit-db",
+        "source": "authentication-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "authentication-service->customer-db",
+        "source": "authentication-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->api-gateway",
+        "source": "branch-portal",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->audit-db",
+        "source": "branch-portal",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->authentication-service",
+        "source": "branch-portal",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->account-service",
+        "source": "card-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->audit-db",
+        "source": "card-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->authentication-service",
+        "source": "card-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->customer-db",
+        "source": "card-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->fraud-engine",
+        "source": "card-service",
+        "target": "fraud-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->transaction-db",
+        "source": "card-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->audit-db",
+        "source": "crm",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->authentication-service",
+        "source": "crm",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->customer-db",
+        "source": "crm",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->notification-service",
+        "source": "crm",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->audit-db",
+        "source": "customer-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->authentication-service",
+        "source": "customer-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->crm",
+        "source": "customer-service",
+        "target": "crm",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->customer-db",
+        "source": "customer-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->notification-service",
+        "source": "customer-service",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->audit-db",
+        "source": "document-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->authentication-service",
+        "source": "document-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->reporting-service",
+        "source": "document-service",
+        "target": "reporting-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->audit-db",
+        "source": "fraud-engine",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->authentication-service",
+        "source": "fraud-engine",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->risk-engine",
+        "source": "fraud-engine",
+        "target": "risk-engine",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->transaction-db",
+        "source": "fraud-engine",
+        "target": "transaction-db",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->account-service",
+        "source": "loan-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->audit-db",
+        "source": "loan-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->authentication-service",
+        "source": "loan-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->customer-db",
+        "source": "loan-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->risk-engine",
+        "source": "loan-service",
+        "target": "risk-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->transaction-db",
+        "source": "loan-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->api-gateway",
+        "source": "mobile-banking",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->audit-db",
+        "source": "mobile-banking",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->authentication-service",
+        "source": "mobile-banking",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->audit-db",
+        "source": "notification-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->authentication-service",
+        "source": "notification-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->customer-db",
+        "source": "notification-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->account-service",
+        "source": "payment-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->audit-db",
+        "source": "payment-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->authentication-service",
+        "source": "payment-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->fraud-engine",
+        "source": "payment-service",
+        "target": "fraud-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->notification-service",
+        "source": "payment-service",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->transaction-db",
+        "source": "payment-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->audit-db",
+        "source": "reporting-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->authentication-service",
+        "source": "reporting-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->reporting-db",
+        "source": "reporting-service",
+        "target": "reporting-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->audit-db",
+        "source": "risk-engine",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->authentication-service",
+        "source": "risk-engine",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->transaction-db",
+        "source": "risk-engine",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "transaction-db->reporting-db",
+        "source": "transaction-db",
+        "target": "reporting-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->api-gateway",
+        "source": "web-banking",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->audit-db",
+        "source": "web-banking",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->authentication-service",
+        "source": "web-banking",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      }
+    ],
+    "impacted_services": [
+      "fraud-engine",
+      "risk-engine",
+      "transaction-db"
+    ],
+    "impacted_databases": [
+      "transaction-db"
+    ],
+    "impacted_apis": [
+      "GET /internal/ledger/accounts/{id}/daily-total",
+      "GET /internal/ledger/entries/{id}",
+      "GET /risk/policies/{id}",
+      "POST /fraud/screenings",
+      "POST /fraud/velocity-checks",
+      "POST /internal/ledger/entries",
+      "POST /risk/assessments",
+      "PUT /fraud/rules/{id}",
+      "PUT /risk/policies/{id}"
+    ],
+    "downstream_systems": [
+      "risk-engine",
+      "transaction-db"
+    ],
+    "deployment_groups": [
+      "core-banking",
+      "core-payments"
+    ]
+  },
+  "risk": {
+    "dimensions": [
+      {
+        "name": "security",
+        "score": 34,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 8,
+            "node_ids": []
+          },
+          {
+            "label": "card data",
+            "points": 25,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "blast radius size",
+            "points": 6,
+            "node_ids": [
+              "fraud-engine",
+              "risk-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "explanation": "Security risk is low (34) because card data (+25) on fraud-engine; blast radius size (+6) on fraud-engine, risk-engine, transaction-db; small, contained change (-5) on fraud-engine."
+      },
+      {
+        "name": "compliance",
+        "score": 50,
+        "level": "medium",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "card data",
+            "points": 30,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "financial data",
+            "points": 20,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "explanation": "Compliance risk is medium (50) because card data (+30) on fraud-engine; financial data (+20) on fraud-engine; small, contained change (-5) on fraud-engine."
+      },
+      {
+        "name": "technical",
+        "score": 11,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "direct services",
+            "points": 6,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "dependency depth",
+            "points": 5,
+            "node_ids": [
+              "risk-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "explanation": "Technical risk is low (11) because direct services (+6) on fraud-engine; dependency depth (+5) on risk-engine, transaction-db; small, contained change (-5) on fraud-engine."
+      },
+      {
+        "name": "operational",
+        "score": 34,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "service criticality",
+            "points": 36,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "downstream systems",
+            "points": 4,
+            "node_ids": [
+              "risk-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "deployment groups",
+            "points": 4,
+            "node_ids": [
+              "fraud-engine",
+              "risk-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -15,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "explanation": "Operational risk is low (34) because service criticality (+36) on fraud-engine; downstream systems (+4) on risk-engine, transaction-db; deployment groups (+4) on fraud-engine, risk-engine, transaction-db."
+      },
+      {
+        "name": "performance",
+        "score": 30,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "transaction path",
+            "points": 20,
+            "node_ids": [
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "payment business rule",
+            "points": 15,
+            "node_ids": [
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -10,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "explanation": "Performance risk is low (30) because transaction path (+20) on transaction-db; payment business rule (+15) on transaction-db; small, contained change (-10) on fraud-engine."
+      },
+      {
+        "name": "delivery",
+        "score": 18,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "low ambiguity",
+            "points": 10,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "direct services",
+            "points": 5,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "label": "owner coordination",
+            "points": 8,
+            "node_ids": [
+              "fraud-engine",
+              "risk-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -10,
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "explanation": "Delivery risk is low (18) because low ambiguity (+10) on fraud-engine; owner coordination (+8) on fraud-engine, risk-engine, transaction-db; direct services (+5) on fraud-engine."
+      }
+    ],
+    "overall": 39,
+    "highest": "compliance",
+    "change_size": "small",
+    "change_size_reason": "a contained change in one or two services, with no API, schema or login change"
+  },
+  "tests": {
+    "tests": [
+      {
+        "id": "TC-032",
+        "title": "Ledger adapter rejects a posting with unbalanced debit and credit totals",
+        "type": "api",
+        "priority": "P2",
+        "covers": [
+          "transaction-db"
+        ],
+        "steps": [
+          "Prepare fixtures for Ledger adapter rejects a posting with unbalanced debit and credit totals.",
+          "Execute the scenario: Ledger adapter rejects a posting with unbalanced debit and credit totals.",
+          "Check the documented outcome for Ledger adapter rejects a posting with unbalanced debit and credit totals."
+        ],
+        "expected": "Ledger adapter rejects a posting with unbalanced debit and credit totals meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-038",
+        "title": "Fraud screening endpoint returns rule version and decision trace",
+        "type": "api",
+        "priority": "P2",
+        "covers": [
+          "fraud-engine"
+        ],
+        "steps": [
+          "Prepare fixtures for Fraud screening endpoint returns rule version and decision trace.",
+          "Execute the scenario: Fraud screening endpoint returns rule version and decision trace.",
+          "Check the documented outcome for Fraud screening endpoint returns rule version and decision trace."
+        ],
+        "expected": "Fraud screening endpoint returns rule version and decision trace meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-031",
+        "title": "Ledger duplicate posting preserves balanced entries and daily totals",
+        "type": "functional",
+        "priority": "P2",
+        "covers": [
+          "transaction-db"
+        ],
+        "steps": [
+          "Prepare fixtures for Ledger duplicate posting preserves balanced entries and daily totals.",
+          "Execute the scenario: Ledger duplicate posting preserves balanced entries and daily totals.",
+          "Check the documented outcome for Ledger duplicate posting preserves balanced entries and daily totals."
+        ],
+        "expected": "Ledger duplicate posting preserves balanced entries and daily totals meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-037",
+        "title": "Card-not-present velocity threshold blocks the sixth attempt inside one minute",
+        "type": "functional",
+        "priority": "P2",
+        "covers": [
+          "fraud-engine"
+        ],
+        "steps": [
+          "Prepare fixtures for Card-not-present velocity threshold blocks the sixth attempt inside one minute.",
+          "Execute the scenario: Card-not-present velocity threshold blocks the sixth attempt inside one minute.",
+          "Check the documented outcome for Card-not-present velocity threshold blocks the sixth attempt inside one minute."
+        ],
+        "expected": "Card-not-present velocity threshold blocks the sixth attempt inside one minute meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-043",
+        "title": "Premium payment limit enforcement agrees with posted daily ledger totals",
+        "type": "integration",
+        "priority": "P2",
+        "covers": [
+          "transaction-db"
+        ],
+        "steps": [
+          "Prepare fixtures for Premium payment limit enforcement agrees with posted daily ledger totals.",
+          "Execute the scenario: Premium payment limit enforcement agrees with posted daily ledger totals.",
+          "Check the documented outcome for Premium payment limit enforcement agrees with posted daily ledger totals."
+        ],
+        "expected": "Premium payment limit enforcement agrees with posted daily ledger totals meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "GEN-1",
+        "title": "Risk Engine active policy signal appears in fraud velocity screening decision",
+        "type": "integration",
+        "priority": "P2",
+        "covers": [
+          "fraud-engine",
+          "risk-engine"
+        ],
+        "steps": [
+          "Publish an updated risk policy threshold via PUT /risk/policies/{id} and read the active policy version through GET /risk/policies/{id}.",
+          "Submit a card-not-present payment screening request to POST /fraud/screenings for a card token.",
+          "Inspect the returned fraud screening decision."
+        ],
+        "expected": "The fraud screening decision includes the active risk-engine policy signal and the fraud rule version, and the velocity rule is evaluated using that policy context.",
+        "source": "generated",
+        "automation_candidate": false
+      },
+      {
+        "id": "GEN-2",
+        "title": "Risk Engine policy version is returned with each fraud velocity check decision",
+        "type": "api",
+        "priority": "P2",
+        "covers": [
+          "fraud-engine",
+          "risk-engine"
+        ],
+        "steps": [
+          "Retrieve the current active risk policy version from GET /risk/policies/{id}.",
+          "Call POST /fraud/velocity-checks five times within sixty seconds for the same card token, including at least one declined attempt.",
+          "Call POST /fraud/velocity-checks for the sixth attempt on that card token."
+        ],
+        "expected": "The sixth attempt is blocked, and the response includes the same active risk-engine policy version and fraud rule version as read from the policy endpoint.",
+        "source": "generated",
+        "automation_candidate": true
+      },
+      {
+        "id": "GEN-3",
+        "title": "Risk Engine policy signal does not bypass premium payment limits for card-not-present payments",
+        "type": "regression",
+        "priority": "P2",
+        "covers": [
+          "fraud-engine",
+          "risk-engine",
+          "transaction-db"
+        ],
+        "steps": [
+          "Ensure an active risk policy signal is available from GET /risk/policies/{id}.",
+          "Submit a card-not-present payment that exceeds the premium payment daily limit but has fewer than six velocity attempts on its card token.",
+          "Observe the fraud screening decision and the transaction ledger posting outcome."
+        ],
+        "expected": "The fraud decision carries the active risk-engine policy signal and rule version, but the payment is still blocked by the existing premium payment limit control and no ledger entry is posted.",
+        "source": "generated",
+        "automation_candidate": true
+      }
+    ],
+    "coverage_estimate": 1.0,
+    "effort_hours": 5.033333333333333,
+    "automation_candidates": 7,
+    "summary": "Selected 5 catalog tests and 3 new tests, covering 3 of 3 impacted nodes (100%); estimated effort is 5.0 hours."
+  },
+  "compliance": {
+    "frameworks": [
+      {
+        "framework": "GDPR",
+        "applicable": false,
+        "reason": "No impacted PII-bearing component and no customer-data touch.",
+        "risk_level": null,
+        "score": null,
+        "findings": [],
+        "recommendations": []
+      },
+      {
+        "framework": "PCI DSS",
+        "applicable": true,
+        "reason": "card-data components are impacted; the change touches card data.",
+        "risk_level": "low",
+        "score": 80,
+        "findings": [
+          {
+            "text": "fraud-engine carries card and financial data classes and the rule set gains a rolling sixty-second counter keyed by card token, so card-token handling, storage minimization and masking expectations within the velocity path warrant verification before release.",
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "text": "The new decision path combines the card-not-present screening outcome with a risk-engine policy signal and a rule version, and the rule is authored through fraud-engine.rule-update; access restrictions, authentication and audit logging on the screening, velocity and rule-update endpoints should be checked for card-data exposure.",
+            "node_ids": [
+              "fraud-engine",
+              "risk-engine"
+            ]
+          },
+          {
+            "text": "Declined attempts count toward the window, meaning declined card-not-present events are retained in the velocity state; the duration and content of that retention should be checked against card data minimization expectations, including what is propagated downstream to transaction-db.",
+            "node_ids": [
+              "fraud-engine",
+              "transaction-db"
+            ]
+          }
+        ],
+        "recommendations": [
+          "Verify card-token handling, masking and minimization for the rolling velocity counter and for the screening decision returned by fraud-engine, including whether declined-attempt data is held beyond the sixty-second window.",
+          "Confirm access restrictions, authentication and audit logging on fraud-engine.screen, fraud-engine.velocity and fraud-engine.rule-update before release.",
+          "Check that embedding the risk-engine policy signal and rule version in the fraud-engine decision does not broaden card data reachable through the screening path."
+        ]
+      },
+      {
+        "framework": "SOX",
+        "applicable": true,
+        "reason": "financial-data components are impacted; the change touches financial data.",
+        "risk_level": "low",
+        "score": 100,
+        "findings": [
+          {
+            "text": "fraud-engine screening decisions gate whether card-not-present payments proceed to posting in transaction-db, and the sixth-attempt block changes which payments reach the ledger; completeness and accuracy of the resulting financial records should be tested.",
+            "node_ids": [
+              "fraud-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "text": "The decision now carries a fraud rule version and an active risk-engine policy version, and both are publishable through fraud-engine.rule-update and risk-engine.policy-update; change control and attributable audit records over those versioned control updates require verification.",
+            "node_ids": [
+              "fraud-engine",
+              "risk-engine"
+            ]
+          },
+          {
+            "text": "The change is described as supporting existing premium payment limit controls rather than replacing them; evidence that limit checks remain independently enforced and cannot be bypassed by the new velocity rule should be examined.",
+            "node_ids": [
+              "fraud-engine",
+              "transaction-db"
+            ]
+          }
+        ],
+        "recommendations": [
+          "Reconcile postings in transaction-db against fraud-engine screening outcomes around the change, and confirm blocked sixth attempts and declined-attempt outcomes are recorded completely and immutably.",
+          "Verify that fraud-engine.rule-update and risk-engine.policy-update retain versioned, attributable audit records with documented control-owner approval for the new velocity rule.",
+          "Test that premium payment limit controls still apply independently of the fraud screening path and document the evidence."
+        ]
+      },
+      {
+        "framework": "Internal Governance",
+        "applicable": true,
+        "reason": "directly changed components have criticality >= 8.",
+        "risk_level": "low",
+        "score": 100,
+        "findings": [
+          {
+            "text": "fraud-engine is the directly changed component with criticality 9 and tier1 service expectations, owned by Payments Platform; service-owner approval, rollback planning and coordination of the shared core-payments release timing with ST-101 represent review exposure.",
+            "node_ids": [
+              "fraud-engine"
+            ]
+          },
+          {
+            "text": "The decision now depends on a risk-engine policy signal and feeds postings into transaction-db, so cross-team ownership sign-off for Data & Analytics and Core Banking dependencies should be confirmed before the rule is enabled.",
+            "node_ids": [
+              "risk-engine",
+              "transaction-db"
+            ]
+          },
+          {
+            "text": "Rule ordering within the existing fraud rule set and the described combined ST-101/ST-110 regression evidence are coordination points that warrant documented verification rather than assumption.",
+            "node_ids": [
+              "fraud-engine"
+            ]
+          }
+        ],
+        "recommendations": [
+          "Obtain Payments Platform and Core Banking service-owner approvals for the fraud-engine change, and record the rollback plan and agreed core-payments release ordering shared with ST-101.",
+          "Verify operational monitoring, alerting and authorization tests for the new velocity rule, together with evidence of the combined ST-101/ST-110 regression run.",
+          "Confirm documented ownership sign-off for the risk-engine policy signal dependency and for the downstream transaction-db posting path."
+        ]
+      }
+    ],
+    "overall_score": 80,
+    "summary": "3 of 4 frameworks apply; the minimum compliance score is 80/100. 0 applicable framework(s) have high risk."
+  },
+  "release": {
+    "confidence": 78,
+    "decision": "GO",
+    "triggered_rules": [
+      "GO: no blocking or conditional release rules fired"
+    ],
+    "conditions": [],
+    "complexity": "medium",
+    "rollback_plan": [
+      "Start rollback with the core-payments deployment group by reverting fraud-engine and then risk-engine to their last approved versions and disabling any configured feature flags.",
+      "Then roll back the core-banking deployment group by reverting transaction-db to its prior approved version, with no schema migration rollback required because changes_db_schema is false.",
+      "Finally, confirm monitoring shows payment screening and velocity metrics have returned to baseline and notify core-payments, core-banking owners and stakeholders that rollback is complete."
+    ],
+    "deployment_notes": [
+      "Deploy the core-banking deployment group first by applying the transaction-db release with no schema migration because changes_db_schema is false.",
+      "Deploy the core-payments deployment group next by releasing risk-engine before fraud-engine, then enabling any configured feature flags and validating combined ST-101/ST-110 regression evidence.",
+      "Monitor payment screening, velocity counters and policy signal exposure during rollout, and notify core-banking, core-payments owners and stakeholders after each group completes."
+    ]
+  },
+  "providers_used": {
+    "requirement": "tokenharbor:deepseek-v4.1-flash:free",
+    "dependency": "deterministic",
+    "scoring": "deterministic",
+    "testing": "tokenharbor:deepseek-v4.1-flash:free",
+    "compliance": "tokenharbor:deepseek-v4.1-flash:free",
+    "release": "tokenharbor:deepseek-v4.1-flash:free"
+  },
+  "duration_ms": 17,
+  "created_at": "2026-10-08T07:29:49.562415Z"
+}

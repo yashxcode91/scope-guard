@@ -1,0 +1,19 @@
+{
+  "answer": "- **Directly changed services:** customer-service, customer-db, crm, notification-service  \n- **All impacted services:** account-service, audit-db, card-service, crm, customer-db, customer-service, loan-service, notification-service, payment-service  \n- **Impacted databases:** audit-db, customer-db  \n- **Impacted APIs:** GET /accounts/{id}/balance, GET /accounts/{id}/limits, GET /cards/{id}, GET /crm/customers/{id}/contacts, GET /customers/{id}, GET /internal/audit/events, GET /internal/customer-store/profiles/{id}, GET /loans/{id}, GET /notifications/preferences/{customerId}, GET /notifications/{id}, GET /payments/limits, GET /payments/{id}, PATCH /cards/{id}/status, PATCH /customers/{id}/profile, POST /cards/{id}/replacement, POST /customers/{id}/emails/verification, POST /internal/audit/events, POST /loans/applications, POST /loans/{id}/disbursements, POST /notifications, POST /payments, POST /payments/{id}/cancellation, PUT /accounts/{id}/limits, PUT /crm/customers/{id}/contacts, PUT /internal/customer-store/profiles/{id}  \n- **Downstream systems:** account-service, audit-db, card-service, loan-service, payment-service  \n- **Deployment groups:** core-banking, core-payments, customer-platform, data-platform  \n\nThese items are taken from the “impact” section of the analysis.",
+  "cited_nodes": [
+    "customer-service",
+    "account-service",
+    "payment-service",
+    "loan-service",
+    "card-service",
+    "crm",
+    "notification-service",
+    "customer-db",
+    "audit-db"
+  ],
+  "cited_factors": [
+    "downstream systems",
+    "deployment groups"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

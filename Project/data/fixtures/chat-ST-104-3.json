@@ -1,0 +1,29 @@
+{
+  "answer": "Only one story is present in the analysis context: **ST-104 — “Customer profile: add preferred name and secondary email.”** It is classified as risky.\n\n- **Decision:** `GO_WITH_CONDITIONS`\n- **Overall risk:** `57`\n- **Highest risk dimension:** `compliance` (`61`, medium)\n- **Triggered rules:**\n  - highest risk is 61 (>= 60)\n  - GDPR risk is high\n  - PCI DSS risk is medium\n  - SOX risk is medium\n\n**Risk dimensions (ST-104):**\n- `compliance` 61 medium — top factors: `pii data` (`crm`, `customer-db`, `customer-service`, `notification-service`), `nearby card data` (`card-service`), `database schema change` (`audit-db`, `customer-db`)\n- `technical` 58 medium — `database schema change` (`audit-db`, `customer-db`), `direct services` (`crm`, `customer-service`, `notification-service`), `new feature` (`crm`, `customer-db`, `customer-service`, `notification-service`)\n- `operational` 53 medium — `service criticality` (`customer-service`), `downstream systems` (`account-service`, `audit-db`, `card-service`, `loan-service`, `payment-service`)\n- `delivery` 46 medium — `owner coordination`, `direct services`, `low ambiguity`\n- `security` 38 low — `customer data`, `blast radius size`\n- `performance` 25 low — `transaction path` (`payment-service`)\n\n**Compliance frameworks:**\n- `GDPR` applicable, risk `high`, score `55`\n- `PCI DSS` applicable, risk `medium`, score `75`\n- `SOX` applicable, risk `medium`, score `75`\n- `Internal Governance` applicable, risk `low`, score `85`\n\nNo other stories are included in the context, so I cannot compare risk across additional stories.",
+  "cited_nodes": [
+    "customer-service",
+    "account-service",
+    "payment-service",
+    "loan-service",
+    "card-service",
+    "crm",
+    "notification-service",
+    "customer-db",
+    "audit-db"
+  ],
+  "cited_factors": [
+    "customer data",
+    "blast radius size",
+    "pii data",
+    "nearby card data",
+    "database schema change",
+    "direct services",
+    "new feature",
+    "service criticality",
+    "downstream systems",
+    "transaction path",
+    "low ambiguity",
+    "owner coordination"
+  ],
+  "provider": "tokenharbor:deepseek-v4.1-flash:free"
+}

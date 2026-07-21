@@ -1,0 +1,1217 @@
+{
+  "story": {
+    "id": "ST-115",
+    "title": "Update the footer text on monthly statement PDFs",
+    "description": "Update the monthly statement PDF footer text rendered by the document service to read: Thank you for banking with us. Apply the approved sentence to the English statement template and retain the existing font, alignment and page margins. The reporting service continues selecting the same template family and supplying the existing render payload. This is a presentation-only template update with fixed wording and a versioned layout asset. The existing rendering workflow remains unchanged. Publish a versioned template after preview approval; rollback consists of selecting the previous template version for subsequent statement rendering.",
+    "type": "story",
+    "acceptance_criteria": [
+      "Every page of newly rendered English monthly statement PDFs shows exactly: Thank you for banking with us.",
+      "Footer font, alignment, margins, page numbering and all other template content remain unchanged, including multi-page statements.",
+      "document-service and reporting-service use the existing render payload and template selection interfaces without modification.",
+      "An approved PDF preview confirms the footer fits the existing layout, and selecting the previous template version restores the prior footer."
+    ]
+  },
+  "requirement": {
+    "business_summary": "The footer text on English monthly statement PDFs is being changed to read \"Thank you for banking with us.\" The update is presentation-only and applies to newly rendered statements; the approved sentence replaces the previous footer while font, alignment, margins, page numbering and all other template content stay the same. A versioned template is published after preview approval, and rollback is performed by selecting the previous template version.",
+    "technical_summary": "Update the versioned English monthly statement template layout asset in document-service so the footer renders the fixed sentence \"Thank you for banking with us.\" The existing rendering workflow, render payload interface and template selection interface are unchanged; reporting-service continues to select the same template family and supply the existing render payload. Publish a new template version after an approved PDF preview confirms the footer fits the layout; rollback selects the previous template version for subsequent statement rendering.",
+    "business_domain": "Retail Banking — Customer Statements and Communications",
+    "affected_capabilities": [
+      "Monthly statement PDF rendering",
+      "Statement template and layout asset management",
+      "Statement template versioning and rollback"
+    ],
+    "affected_services": [
+      "document-service"
+    ],
+    "change_type": "config_change",
+    "touches_customer_data": false,
+    "touches_card_data": false,
+    "touches_financial_data": false,
+    "changes_auth_flow": false,
+    "changes_external_api_contract": false,
+    "changes_db_schema": false,
+    "ambiguity": "low",
+    "engineering_scope": "Small, contained change in a single service: replace fixed footer text in the versioned English monthly statement template asset in document-service and publish a new template version after preview approval. No code-path, payload, template-selection, API or schema changes; reporting-service and all other services remain untouched. Rollback is template-version selection only.",
+    "source": "tokenharbor:deepseek-v4.1-flash:free"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "account-service",
+        "label": "Account Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -230.8,
+        "y": 526.2,
+        "criticality": 9,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial",
+          "pii"
+        ]
+      },
+      {
+        "id": "api-gateway",
+        "label": "API Gateway",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 314.2,
+        "y": -481.0,
+        "criticality": 10,
+        "owner_team": "Identity & Access",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "atm",
+        "label": "ATM Network",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 453.4,
+        "y": 352.9,
+        "criticality": 7,
+        "owner_team": "Assisted Channels",
+        "data_classes": [
+          "card",
+          "financial"
+        ]
+      },
+      {
+        "id": "audit-db",
+        "label": "Audit Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -389.1,
+        "y": -422.7,
+        "criticality": 8,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "audit"
+        ]
+      },
+      {
+        "id": "authentication-service",
+        "label": "Authentication Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 453.4,
+        "y": -352.9,
+        "criticality": 10,
+        "owner_team": "Identity & Access",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "branch-portal",
+        "label": "Branch Portal",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 314.2,
+        "y": 481.0,
+        "criticality": 6,
+        "owner_team": "Assisted Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "card-service",
+        "label": "Card Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -389.1,
+        "y": 422.7,
+        "criticality": 9,
+        "owner_team": "Cards Platform",
+        "data_classes": [
+          "card",
+          "pii"
+        ]
+      },
+      {
+        "id": "crm",
+        "label": "Customer Relationship Management",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -505.3,
+        "y": 273.5,
+        "criticality": 6,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "customer-db",
+        "label": "Customer Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -230.8,
+        "y": -526.2,
+        "criticality": 9,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "customer-service",
+        "label": "Customer Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -566.7,
+        "y": 94.6,
+        "criticality": 8,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "document-service",
+        "label": "Document Service",
+        "type": "platform",
+        "hop": 0,
+        "severity": "low",
+        "x": 0.0,
+        "y": 0.0,
+        "criticality": 4,
+        "owner_team": "Document Operations",
+        "data_classes": []
+      },
+      {
+        "id": "fraud-engine",
+        "label": "Fraud Engine",
+        "type": "analytics",
+        "hop": null,
+        "severity": null,
+        "x": 574.5,
+        "y": 0.0,
+        "criticality": 9,
+        "owner_team": "Payments Platform",
+        "data_classes": [
+          "financial",
+          "card"
+        ]
+      },
+      {
+        "id": "loan-service",
+        "label": "Loan Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -566.7,
+        "y": -94.6,
+        "criticality": 8,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial",
+          "pii"
+        ]
+      },
+      {
+        "id": "mobile-banking",
+        "label": "Mobile Banking",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 141.0,
+        "y": 557.0,
+        "criticality": 8,
+        "owner_team": "Digital Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "notification-service",
+        "label": "Notification Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 543.4,
+        "y": -186.6,
+        "criticality": 6,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "payment-service",
+        "label": "Payment Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -505.3,
+        "y": -273.5,
+        "criticality": 10,
+        "owner_team": "Payments Platform",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "reporting-db",
+        "label": "Reporting Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -47.4,
+        "y": -572.6,
+        "criticality": 6,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "reporting-service",
+        "label": "Reporting Service",
+        "type": "analytics",
+        "hop": 1,
+        "severity": "low",
+        "x": -170.0,
+        "y": 0.0,
+        "criticality": 5,
+        "owner_team": "Data & Analytics",
+        "data_classes": []
+      },
+      {
+        "id": "risk-engine",
+        "label": "Risk Engine",
+        "type": "analytics",
+        "hop": null,
+        "severity": null,
+        "x": 543.4,
+        "y": 186.6,
+        "criticality": 8,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "transaction-db",
+        "label": "Transaction Ledger Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": 141.0,
+        "y": -557.0,
+        "criticality": 10,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "web-banking",
+        "label": "Web Banking",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": -47.4,
+        "y": 572.6,
+        "criticality": 8,
+        "owner_team": "Digital Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "account-service->audit-db",
+        "source": "account-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->authentication-service",
+        "source": "account-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->customer-db",
+        "source": "account-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->transaction-db",
+        "source": "account-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->account-service",
+        "source": "api-gateway",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->audit-db",
+        "source": "api-gateway",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->authentication-service",
+        "source": "api-gateway",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->card-service",
+        "source": "api-gateway",
+        "target": "card-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->crm",
+        "source": "api-gateway",
+        "target": "crm",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->customer-service",
+        "source": "api-gateway",
+        "target": "customer-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->document-service",
+        "source": "api-gateway",
+        "target": "document-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->loan-service",
+        "source": "api-gateway",
+        "target": "loan-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->payment-service",
+        "source": "api-gateway",
+        "target": "payment-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->api-gateway",
+        "source": "atm",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->audit-db",
+        "source": "atm",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->authentication-service",
+        "source": "atm",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "authentication-service->audit-db",
+        "source": "authentication-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "authentication-service->customer-db",
+        "source": "authentication-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->api-gateway",
+        "source": "branch-portal",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->audit-db",
+        "source": "branch-portal",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->authentication-service",
+        "source": "branch-portal",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->account-service",
+        "source": "card-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->audit-db",
+        "source": "card-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->authentication-service",
+        "source": "card-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->customer-db",
+        "source": "card-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->fraud-engine",
+        "source": "card-service",
+        "target": "fraud-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->transaction-db",
+        "source": "card-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->audit-db",
+        "source": "crm",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->authentication-service",
+        "source": "crm",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->customer-db",
+        "source": "crm",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->notification-service",
+        "source": "crm",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->audit-db",
+        "source": "customer-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->authentication-service",
+        "source": "customer-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->crm",
+        "source": "customer-service",
+        "target": "crm",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->customer-db",
+        "source": "customer-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->notification-service",
+        "source": "customer-service",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->audit-db",
+        "source": "document-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->authentication-service",
+        "source": "document-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->reporting-service",
+        "source": "document-service",
+        "target": "reporting-service",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->audit-db",
+        "source": "fraud-engine",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->authentication-service",
+        "source": "fraud-engine",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->risk-engine",
+        "source": "fraud-engine",
+        "target": "risk-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->transaction-db",
+        "source": "fraud-engine",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->account-service",
+        "source": "loan-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->audit-db",
+        "source": "loan-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->authentication-service",
+        "source": "loan-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->customer-db",
+        "source": "loan-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->risk-engine",
+        "source": "loan-service",
+        "target": "risk-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->transaction-db",
+        "source": "loan-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->api-gateway",
+        "source": "mobile-banking",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->audit-db",
+        "source": "mobile-banking",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->authentication-service",
+        "source": "mobile-banking",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->audit-db",
+        "source": "notification-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->authentication-service",
+        "source": "notification-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->customer-db",
+        "source": "notification-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->account-service",
+        "source": "payment-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->audit-db",
+        "source": "payment-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->authentication-service",
+        "source": "payment-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->fraud-engine",
+        "source": "payment-service",
+        "target": "fraud-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->notification-service",
+        "source": "payment-service",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->transaction-db",
+        "source": "payment-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->audit-db",
+        "source": "reporting-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->authentication-service",
+        "source": "reporting-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->reporting-db",
+        "source": "reporting-service",
+        "target": "reporting-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->audit-db",
+        "source": "risk-engine",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->authentication-service",
+        "source": "risk-engine",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->transaction-db",
+        "source": "risk-engine",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "transaction-db->reporting-db",
+        "source": "transaction-db",
+        "target": "reporting-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->api-gateway",
+        "source": "web-banking",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->audit-db",
+        "source": "web-banking",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->authentication-service",
+        "source": "web-banking",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      }
+    ],
+    "impacted_services": [
+      "document-service",
+      "reporting-service"
+    ],
+    "impacted_databases": [],
+    "impacted_apis": [
+      "GET /documents/templates/{id}",
+      "GET /reports/monthly-statements/{id}",
+      "GET /reports/statement-template",
+      "POST /documents/statements/render",
+      "POST /reports/monthly-statements/jobs",
+      "PUT /documents/templates/{id}"
+    ],
+    "downstream_systems": [
+      "reporting-service"
+    ],
+    "deployment_groups": [
+      "data-platform",
+      "documents"
+    ]
+  },
+  "risk": {
+    "dimensions": [
+      {
+        "name": "security",
+        "score": 7,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 8,
+            "node_ids": []
+          },
+          {
+            "label": "blast radius size",
+            "points": 4,
+            "node_ids": [
+              "document-service",
+              "reporting-service"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "document-service"
+            ]
+          }
+        ],
+        "explanation": "Security risk is low (7) because blast radius size (+4) on document-service, reporting-service; small, contained change (-5) on document-service."
+      },
+      {
+        "name": "compliance",
+        "score": 0,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "document-service"
+            ]
+          }
+        ],
+        "explanation": "Compliance risk is low (0) because small, contained change (-5) on document-service."
+      },
+      {
+        "name": "technical",
+        "score": 11,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "direct services",
+            "points": 6,
+            "node_ids": [
+              "document-service"
+            ]
+          },
+          {
+            "label": "dependency depth",
+            "points": 5,
+            "node_ids": [
+              "reporting-service"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "document-service"
+            ]
+          }
+        ],
+        "explanation": "Technical risk is low (11) because direct services (+6) on document-service; dependency depth (+5) on reporting-service; small, contained change (-5) on document-service."
+      },
+      {
+        "name": "operational",
+        "score": 12,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "service criticality",
+            "points": 16,
+            "node_ids": [
+              "document-service"
+            ]
+          },
+          {
+            "label": "downstream systems",
+            "points": 2,
+            "node_ids": [
+              "reporting-service"
+            ]
+          },
+          {
+            "label": "deployment groups",
+            "points": 4,
+            "node_ids": [
+              "document-service",
+              "reporting-service"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -15,
+            "node_ids": [
+              "document-service"
+            ]
+          }
+        ],
+        "explanation": "Operational risk is low (12) because service criticality (+16) on document-service; deployment groups (+4) on document-service, reporting-service; downstream systems (+2) on reporting-service."
+      },
+      {
+        "name": "performance",
+        "score": 0,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "small, contained change",
+            "points": -10,
+            "node_ids": [
+              "document-service"
+            ]
+          }
+        ],
+        "explanation": "Performance risk is low (0) because small, contained change (-10) on document-service."
+      },
+      {
+        "name": "delivery",
+        "score": 14,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "low ambiguity",
+            "points": 10,
+            "node_ids": [
+              "document-service"
+            ]
+          },
+          {
+            "label": "direct services",
+            "points": 5,
+            "node_ids": [
+              "document-service"
+            ]
+          },
+          {
+            "label": "owner coordination",
+            "points": 4,
+            "node_ids": [
+              "document-service",
+              "reporting-service"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -10,
+            "node_ids": [
+              "document-service"
+            ]
+          }
+        ],
+        "explanation": "Delivery risk is low (14) because low ambiguity (+10) on document-service; direct services (+5) on document-service; owner coordination (+4) on document-service, reporting-service."
+      }
+    ],
+    "overall": 12,
+    "highest": "delivery",
+    "change_size": "small",
+    "change_size_reason": "a contained change in one or two services, with no API, schema or login change"
+  },
+  "tests": {
+    "tests": [
+      {
+        "id": "TC-028",
+        "title": "Statement render endpoint rejects an unknown template version",
+        "type": "api",
+        "priority": "P3",
+        "covers": [
+          "document-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Statement render endpoint rejects an unknown template version.",
+          "Execute the scenario: Statement render endpoint rejects an unknown template version.",
+          "Check the documented outcome for Statement render endpoint rejects an unknown template version."
+        ],
+        "expected": "Statement render endpoint rejects an unknown template version meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-042",
+        "title": "Monthly statement payload endpoint preserves pagination metadata",
+        "type": "api",
+        "priority": "P3",
+        "covers": [
+          "reporting-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Monthly statement payload endpoint preserves pagination metadata.",
+          "Execute the scenario: Monthly statement payload endpoint preserves pagination metadata.",
+          "Check the documented outcome for Monthly statement payload endpoint preserves pagination metadata."
+        ],
+        "expected": "Monthly statement payload endpoint preserves pagination metadata meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-027",
+        "title": "Statement PDF footer renders within page margins on every template",
+        "type": "functional",
+        "priority": "P3",
+        "covers": [
+          "document-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Statement PDF footer renders within page margins on every template.",
+          "Execute the scenario: Statement PDF footer renders within page margins on every template.",
+          "Check the documented outcome for Statement PDF footer renders within page margins on every template."
+        ],
+        "expected": "Statement PDF footer renders within page margins on every template meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-041",
+        "title": "Monthly statement jobs select the published document template version",
+        "type": "functional",
+        "priority": "P3",
+        "covers": [
+          "reporting-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Monthly statement jobs select the published document template version.",
+          "Execute the scenario: Monthly statement jobs select the published document template version.",
+          "Check the documented outcome for Monthly statement jobs select the published document template version."
+        ],
+        "expected": "Monthly statement jobs select the published document template version meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-049",
+        "title": "Ledger replication feeds a consistent reporting statement projection",
+        "type": "integration",
+        "priority": "P3",
+        "covers": [
+          "reporting-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Ledger replication feeds a consistent reporting statement projection.",
+          "Execute the scenario: Ledger replication feeds a consistent reporting statement projection.",
+          "Check the documented outcome for Ledger replication feeds a consistent reporting statement projection."
+        ],
+        "expected": "Ledger replication feeds a consistent reporting statement projection meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      }
+    ],
+    "coverage_estimate": 1.0,
+    "effort_hours": 0.5666666666666667,
+    "automation_candidates": 5,
+    "summary": "Selected 5 catalog tests and 0 new tests, covering 2 of 2 impacted nodes (100%); estimated effort is 0.6 hours."
+  },
+  "compliance": {
+    "frameworks": [
+      {
+        "framework": "GDPR",
+        "applicable": false,
+        "reason": "No impacted PII-bearing component and no customer-data touch.",
+        "risk_level": null,
+        "score": null,
+        "findings": [],
+        "recommendations": []
+      },
+      {
+        "framework": "PCI DSS",
+        "applicable": false,
+        "reason": "No impacted card-data component and no card-data touch.",
+        "risk_level": null,
+        "score": null,
+        "findings": [],
+        "recommendations": []
+      },
+      {
+        "framework": "SOX",
+        "applicable": false,
+        "reason": "No impacted financial or audit component and no financial-data touch.",
+        "risk_level": null,
+        "score": null,
+        "findings": [],
+        "recommendations": []
+      },
+      {
+        "framework": "Internal Governance",
+        "applicable": false,
+        "reason": "No directly changed component with criticality >= 8 and no authentication-flow change.",
+        "risk_level": null,
+        "score": null,
+        "findings": [],
+        "recommendations": []
+      }
+    ],
+    "overall_score": 100,
+    "summary": "No compliance framework applies to the declared change and impacted components; the overall score is 100/100."
+  },
+  "release": {
+    "confidence": 94,
+    "decision": "GO",
+    "triggered_rules": [
+      "GO: no blocking or conditional release rules fired"
+    ],
+    "conditions": [],
+    "complexity": "medium",
+    "rollback_plan": [
+      "Revert the documents group by selecting the previous English monthly statement template version in document-service for subsequent statement rendering.",
+      "Confirm the data-platform group remains unchanged and healthy because reporting-service has no code, schema, or template rollback action.",
+      "Monitor statement rendering after rollback and notify the release owner and stakeholders of the outcome."
+    ],
+    "deployment_notes": [
+      "Confirm the data-platform reporting-service group is unchanged and healthy before proceeding with the documented deployment order.",
+      "Publish the new versioned English monthly statement template in document-service after the approved PDF preview; no feature flags are configured for this change.",
+      "Monitor newly rendered statements and notify the release owner and stakeholders after validation."
+    ]
+  },
+  "providers_used": {
+    "requirement": "tokenharbor:deepseek-v4.1-flash:free",
+    "dependency": "deterministic",
+    "scoring": "deterministic",
+    "testing": "deterministic",
+    "compliance": "deterministic",
+    "release": "tokenharbor:deepseek-v4.1-flash:free"
+  },
+  "duration_ms": 16,
+  "created_at": "2026-10-08T07:29:49.611878Z"
+}

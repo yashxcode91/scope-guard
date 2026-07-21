@@ -1,0 +1,6 @@
+{
+  "answer": "- **ST-107** – listed as a high‑risk story in the sprint KPIs (“high_risk_stories”: [“ST‑107”])【{\"id\":\"sprint-42\",\"kpis\":{\"high_risk_stories\":[\"ST-107\"]}}】.",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

@@ -1,0 +1,11 @@
+{
+  "answer": "- **Directly changed service:** `document-service`【impact.directly_changed】  \n- **Other services impacted:** `reporting-service` (downstream)【impact.downstream, impact.services】  \n- **Affected capabilities:**  \n  - Monthly statement PDF rendering  \n  - Statement template and layout asset management  \n  - Statement template versioning and rollback【requirement.affected_capabilities】  \n- **Affected services (broader):** `document-service`, `reporting-service`【requirement.affected_services】  \n- **Impacted APIs:**  \n  - `GET /documents/templates/{id}`  \n  - `GET /reports/monthly-statements/{id}`  \n  - `GET /reports/statement-template`  \n  - `POST /documents/statements/render`  \n  - `POST /reports/monthly-statements/jobs`  \n  - `PUT /documents/templates/{id}`【impact.apis】  \n- **Deployment groups impacted:** `data-platform`, `documents`【impact.deployment_groups】  \n- **Databases:** none (empty list)【impact.databases】",
+  "cited_nodes": [
+    "document-service",
+    "reporting-service"
+  ],
+  "cited_factors": [
+    "deployment groups"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

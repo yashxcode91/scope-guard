@@ -1,0 +1,13 @@
+{
+  "answer": "- Verify the footer text on newly rendered English monthly statement PDFs displays exactly **“Thank you for banking with us.”**  \n- Confirm that font, alignment, margins, page numbering, and all other template content remain unchanged after the footer update.  \n- Test that publishing a new versioned English monthly statement template in **document‑service** (after an approved PDF preview) makes the updated footer available for subsequent statement renders.  \n- Validate rollback functionality: selecting the previous English monthly statement template version in **document‑service** restores the original footer for later statements.  \n- Ensure **reporting‑service** continues to select the correct template family and render statements without modification (no code, schema, or template‑selection changes).  \n- Exercise the affected APIs to confirm they return expected data:  \n  - `GET /documents/templates/{id}`  \n  - `GET /reports/monthly-statements/{id}`  \n  - `GET /reports/statement-template`  \n  - `POST /documents/statements/render`  \n  - `POST /reports/monthly-statements/jobs`  \n  - `PUT /documents/templates/{id}`  \n- Check that downstream services (e.g., any consumers of statement PDFs) receive correctly formatted documents after both the new template rollout and a rollback.  \n- Monitor the health of the deployment groups **documents** and **data‑platform** before, during, and after the change to ensure no unintended impact.  \n\nThese tests address the direct service change, template versioning/rollback, dependency on reporting‑service, and the low‑ambiguity, small‑contained nature of the update as indicated by the factor labels (baseline, direct services, dependency depth, service criticality, deployment groups, low ambiguity) and component IDs (**document‑service**, **reporting‑service**).",
+  "cited_nodes": [],
+  "cited_factors": [
+    "baseline",
+    "direct services",
+    "dependency depth",
+    "service criticality",
+    "deployment groups",
+    "low ambiguity"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

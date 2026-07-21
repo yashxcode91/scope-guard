@@ -1,0 +1,10 @@
+{
+  "answer": "Release confidence is low (58) because the sprint carries several risk‑inducing factors:\n\n- **High‑risk story**: ST‑107 is flagged as the sole high‑risk story [high_risk_stories: [\"ST‑107\"]].\n- **Deployment collisions** (high‑risk conflicts):\n  - ST‑101 vs ST‑107 on **account‑service** (risk_score 100) [conflicts.id: C-ST-101-ST-107-account-service].\n  - ST‑101 vs ST‑110 on **payment‑service** (risk_score 80) [conflicts.id: C-ST-101-ST-110-payment-service].\n  - ST‑107 vs ST‑112 on **authentication‑service** (risk_score 100) [conflicts.id: C-ST-107-ST-112-authentication-service].\n- **Compliance issues**: 3 frameworks show medium/high risk (GDPR, PCI DSS, SOX) across multiple stories [compliance.issues: 3].\n- **Health score**: Overall sprint health is only 49 [health_score: 49].\n- **Testing effort**: Limited testing coverage (36.7 h) and modest test coverage estimates reduce confidence [testing_effort_hours: 36.7].\n\nThese combined risks drive the low release confidence.",
+  "cited_nodes": [
+    "account-service",
+    "payment-service",
+    "authentication-service"
+  ],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

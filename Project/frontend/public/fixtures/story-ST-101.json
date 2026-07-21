@@ -1,0 +1,1417 @@
+{
+  "story": {
+    "id": "ST-101",
+    "title": "Increase daily payment limits for premium customers",
+    "description": "Increase daily payment limits for premium customers from AED 25,000 to AED 50,000 for domestic transfers. The payment-service must obtain premium eligibility and the effective account limit from account-service before accepting each payment. Keep fraud screening active through fraud-engine and use the transaction ledger in transaction-db to calculate the remaining daily allowance, including concurrent requests. Roll out the business rule behind an approved feature flag during the payments release window. Operations must confirm threshold monitoring and rollback readiness before enabling the higher limit; standard customer limits remain unchanged.",
+    "type": "story",
+    "acceptance_criteria": [
+      "A premium account can submit domestic payments totaling AED 50,000 per bank-local calendar day; the next payment is declined.",
+      "A standard account retains its AED 25,000 daily limit and existing per-payment checks.",
+      "Concurrent payment submissions cannot exceed the account daily limit, and retries create one transaction ledger posting.",
+      "Every accepted payment passes fraud screening; operations approves monitoring and can restore the previous limit with the feature flag."
+    ]
+  },
+  "requirement": {
+    "business_summary": "Increase the daily domestic payment limit for premium customers from AED 25,000 to AED 50,000, while keeping standard customer limits unchanged, and roll out the change via a feature flag.",
+    "technical_summary": "Payment-service will call account-service to retrieve premium eligibility and the effective account limit before accepting a payment, then query transaction-db ledger to calculate the remaining daily allowance (including concurrent requests), enforce the new limit, and continue to route payments through fraud-engine for screening; the higher limit is enabled behind an approved feature flag during the payments release window.",
+    "business_domain": "Payments",
+    "affected_capabilities": [
+      "Domestic payment processing",
+      "Premium eligibility check",
+      "Daily limit enforcement",
+      "Fraud screening",
+      "Feature flag toggling"
+    ],
+    "affected_services": [
+      "payment-service",
+      "account-service"
+    ],
+    "change_type": "business_rule_change",
+    "touches_customer_data": true,
+    "touches_card_data": false,
+    "touches_financial_data": true,
+    "changes_auth_flow": false,
+    "changes_external_api_contract": false,
+    "changes_db_schema": false,
+    "ambiguity": "low",
+    "engineering_scope": "A small, contained change: payment-service modified to fetch premium eligibility and limit from account-service, compute remaining allowance using transaction-db reads, enforce the new limit via a feature flag; account-service updated to expose premium eligibility/effective limit; feature flag configuration added.",
+    "source": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "account-service",
+        "label": "Account Service",
+        "type": "core",
+        "hop": 0,
+        "severity": "medium",
+        "x": 110.0,
+        "y": 0.0,
+        "criticality": 9,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial",
+          "pii"
+        ]
+      },
+      {
+        "id": "api-gateway",
+        "label": "API Gateway",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 140.2,
+        "y": -431.4,
+        "criticality": 10,
+        "owner_team": "Identity & Access",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "atm",
+        "label": "ATM Network",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 303.5,
+        "y": 337.1,
+        "criticality": 7,
+        "owner_team": "Assisted Channels",
+        "data_classes": [
+          "card",
+          "financial"
+        ]
+      },
+      {
+        "id": "audit-db",
+        "label": "Audit Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -226.8,
+        "y": -392.8,
+        "criticality": 8,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "audit"
+        ]
+      },
+      {
+        "id": "authentication-service",
+        "label": "Authentication Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 303.5,
+        "y": -337.1,
+        "criticality": 10,
+        "owner_team": "Identity & Access",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "branch-portal",
+        "label": "Branch Portal",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": 140.2,
+        "y": 431.4,
+        "criticality": 6,
+        "owner_team": "Assisted Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "card-service",
+        "label": "Card Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -367.0,
+        "y": 266.6,
+        "criticality": 9,
+        "owner_team": "Cards Platform",
+        "data_classes": [
+          "card",
+          "pii"
+        ]
+      },
+      {
+        "id": "crm",
+        "label": "Customer Relationship Management",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -443.7,
+        "y": 94.3,
+        "criticality": 6,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "customer-db",
+        "label": "Customer Database",
+        "type": "database",
+        "hop": 1,
+        "severity": "medium",
+        "x": -198.0,
+        "y": 198.0,
+        "criticality": 9,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "customer-service",
+        "label": "Customer Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -443.7,
+        "y": -94.3,
+        "criticality": 8,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "document-service",
+        "label": "Document Service",
+        "type": "platform",
+        "hop": null,
+        "severity": null,
+        "x": 414.4,
+        "y": -184.5,
+        "criticality": 4,
+        "owner_team": "Document Operations",
+        "data_classes": []
+      },
+      {
+        "id": "fraud-engine",
+        "label": "Fraud Engine",
+        "type": "analytics",
+        "hop": 1,
+        "severity": "medium",
+        "x": 198.0,
+        "y": 198.0,
+        "criticality": 9,
+        "owner_team": "Payments Platform",
+        "data_classes": [
+          "financial",
+          "card"
+        ]
+      },
+      {
+        "id": "loan-service",
+        "label": "Loan Service",
+        "type": "core",
+        "hop": null,
+        "severity": null,
+        "x": -367.0,
+        "y": -266.6,
+        "criticality": 8,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial",
+          "pii"
+        ]
+      },
+      {
+        "id": "mobile-banking",
+        "label": "Mobile Banking",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": -47.4,
+        "y": 451.1,
+        "criticality": 8,
+        "owner_team": "Digital Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      },
+      {
+        "id": "notification-service",
+        "label": "Notification Service",
+        "type": "platform",
+        "hop": 1,
+        "severity": "low",
+        "x": 198.0,
+        "y": -198.0,
+        "criticality": 6,
+        "owner_team": "Customer Platform",
+        "data_classes": [
+          "pii"
+        ]
+      },
+      {
+        "id": "payment-service",
+        "label": "Payment Service",
+        "type": "core",
+        "hop": 0,
+        "severity": "high",
+        "x": -110.0,
+        "y": 0.0,
+        "criticality": 10,
+        "owner_team": "Payments Platform",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "reporting-db",
+        "label": "Reporting Database",
+        "type": "database",
+        "hop": null,
+        "severity": null,
+        "x": -47.4,
+        "y": -451.1,
+        "criticality": 6,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "reporting-service",
+        "label": "Reporting Service",
+        "type": "analytics",
+        "hop": null,
+        "severity": null,
+        "x": 453.6,
+        "y": 0.0,
+        "criticality": 5,
+        "owner_team": "Data & Analytics",
+        "data_classes": []
+      },
+      {
+        "id": "risk-engine",
+        "label": "Risk Engine",
+        "type": "analytics",
+        "hop": null,
+        "severity": null,
+        "x": 414.4,
+        "y": 184.5,
+        "criticality": 8,
+        "owner_team": "Data & Analytics",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "transaction-db",
+        "label": "Transaction Ledger Database",
+        "type": "database",
+        "hop": 1,
+        "severity": "medium",
+        "x": -198.0,
+        "y": -198.0,
+        "criticality": 10,
+        "owner_team": "Core Banking",
+        "data_classes": [
+          "financial"
+        ]
+      },
+      {
+        "id": "web-banking",
+        "label": "Web Banking",
+        "type": "channel",
+        "hop": null,
+        "severity": null,
+        "x": -226.8,
+        "y": 392.8,
+        "criticality": 8,
+        "owner_team": "Digital Channels",
+        "data_classes": [
+          "pii",
+          "financial"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "account-service->audit-db",
+        "source": "account-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->authentication-service",
+        "source": "account-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "account-service->customer-db",
+        "source": "account-service",
+        "target": "customer-db",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "account-service->transaction-db",
+        "source": "account-service",
+        "target": "transaction-db",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->account-service",
+        "source": "api-gateway",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->audit-db",
+        "source": "api-gateway",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->authentication-service",
+        "source": "api-gateway",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->card-service",
+        "source": "api-gateway",
+        "target": "card-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->crm",
+        "source": "api-gateway",
+        "target": "crm",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->customer-service",
+        "source": "api-gateway",
+        "target": "customer-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->document-service",
+        "source": "api-gateway",
+        "target": "document-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->loan-service",
+        "source": "api-gateway",
+        "target": "loan-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "api-gateway->payment-service",
+        "source": "api-gateway",
+        "target": "payment-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->api-gateway",
+        "source": "atm",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->audit-db",
+        "source": "atm",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "atm->authentication-service",
+        "source": "atm",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "authentication-service->audit-db",
+        "source": "authentication-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "authentication-service->customer-db",
+        "source": "authentication-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->api-gateway",
+        "source": "branch-portal",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->audit-db",
+        "source": "branch-portal",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "branch-portal->authentication-service",
+        "source": "branch-portal",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->account-service",
+        "source": "card-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->audit-db",
+        "source": "card-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->authentication-service",
+        "source": "card-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->customer-db",
+        "source": "card-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->fraud-engine",
+        "source": "card-service",
+        "target": "fraud-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "card-service->transaction-db",
+        "source": "card-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->audit-db",
+        "source": "crm",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->authentication-service",
+        "source": "crm",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->customer-db",
+        "source": "crm",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "crm->notification-service",
+        "source": "crm",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->audit-db",
+        "source": "customer-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->authentication-service",
+        "source": "customer-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->crm",
+        "source": "customer-service",
+        "target": "crm",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->customer-db",
+        "source": "customer-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "customer-service->notification-service",
+        "source": "customer-service",
+        "target": "notification-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->audit-db",
+        "source": "document-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->authentication-service",
+        "source": "document-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "document-service->reporting-service",
+        "source": "document-service",
+        "target": "reporting-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->audit-db",
+        "source": "fraud-engine",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->authentication-service",
+        "source": "fraud-engine",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->risk-engine",
+        "source": "fraud-engine",
+        "target": "risk-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "fraud-engine->transaction-db",
+        "source": "fraud-engine",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->account-service",
+        "source": "loan-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->audit-db",
+        "source": "loan-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->authentication-service",
+        "source": "loan-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->customer-db",
+        "source": "loan-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->risk-engine",
+        "source": "loan-service",
+        "target": "risk-engine",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "loan-service->transaction-db",
+        "source": "loan-service",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->api-gateway",
+        "source": "mobile-banking",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->audit-db",
+        "source": "mobile-banking",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "mobile-banking->authentication-service",
+        "source": "mobile-banking",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->audit-db",
+        "source": "notification-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->authentication-service",
+        "source": "notification-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "notification-service->customer-db",
+        "source": "notification-service",
+        "target": "customer-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->account-service",
+        "source": "payment-service",
+        "target": "account-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->audit-db",
+        "source": "payment-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->authentication-service",
+        "source": "payment-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->fraud-engine",
+        "source": "payment-service",
+        "target": "fraud-engine",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->notification-service",
+        "source": "payment-service",
+        "target": "notification-service",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "payment-service->transaction-db",
+        "source": "payment-service",
+        "target": "transaction-db",
+        "on_impact_path": true,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->audit-db",
+        "source": "reporting-service",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->authentication-service",
+        "source": "reporting-service",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "reporting-service->reporting-db",
+        "source": "reporting-service",
+        "target": "reporting-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->audit-db",
+        "source": "risk-engine",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->authentication-service",
+        "source": "risk-engine",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "risk-engine->transaction-db",
+        "source": "risk-engine",
+        "target": "transaction-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "transaction-db->reporting-db",
+        "source": "transaction-db",
+        "target": "reporting-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->api-gateway",
+        "source": "web-banking",
+        "target": "api-gateway",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->audit-db",
+        "source": "web-banking",
+        "target": "audit-db",
+        "on_impact_path": false,
+        "conflict": false
+      },
+      {
+        "id": "web-banking->authentication-service",
+        "source": "web-banking",
+        "target": "authentication-service",
+        "on_impact_path": false,
+        "conflict": false
+      }
+    ],
+    "impacted_services": [
+      "account-service",
+      "customer-db",
+      "fraud-engine",
+      "notification-service",
+      "payment-service",
+      "transaction-db"
+    ],
+    "impacted_databases": [
+      "customer-db",
+      "transaction-db"
+    ],
+    "impacted_apis": [
+      "GET /accounts/{id}/balance",
+      "GET /accounts/{id}/limits",
+      "GET /internal/customer-store/profiles/{id}",
+      "GET /internal/ledger/accounts/{id}/daily-total",
+      "GET /internal/ledger/entries/{id}",
+      "GET /notifications/preferences/{customerId}",
+      "GET /notifications/{id}",
+      "GET /payments/limits",
+      "GET /payments/{id}",
+      "POST /fraud/screenings",
+      "POST /fraud/velocity-checks",
+      "POST /internal/ledger/entries",
+      "POST /notifications",
+      "POST /payments",
+      "POST /payments/{id}/cancellation",
+      "PUT /accounts/{id}/limits",
+      "PUT /fraud/rules/{id}",
+      "PUT /internal/customer-store/profiles/{id}"
+    ],
+    "downstream_systems": [
+      "customer-db",
+      "fraud-engine",
+      "notification-service",
+      "transaction-db"
+    ],
+    "deployment_groups": [
+      "core-banking",
+      "core-payments",
+      "customer-platform"
+    ]
+  },
+  "risk": {
+    "dimensions": [
+      {
+        "name": "security",
+        "score": 33,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 8,
+            "node_ids": []
+          },
+          {
+            "label": "customer data",
+            "points": 20,
+            "node_ids": [
+              "account-service"
+            ]
+          },
+          {
+            "label": "blast radius size",
+            "points": 10,
+            "node_ids": [
+              "account-service",
+              "customer-db",
+              "fraud-engine",
+              "notification-service",
+              "payment-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "explanation": "Security risk is low (33) because customer data (+20) on account-service; blast radius size (+10) on account-service, customer-db, fraud-engine and 3 more; small, contained change (-5) on account-service, payment-service."
+      },
+      {
+        "name": "compliance",
+        "score": 40,
+        "level": "medium",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "pii data",
+            "points": 20,
+            "node_ids": [
+              "account-service"
+            ]
+          },
+          {
+            "label": "financial data",
+            "points": 20,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "explanation": "Compliance risk is medium (40) because pii data (+20) on account-service; financial data (+20) on account-service, payment-service; small, contained change (-5) on account-service, payment-service."
+      },
+      {
+        "name": "technical",
+        "score": 17,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "direct services",
+            "points": 12,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          },
+          {
+            "label": "dependency depth",
+            "points": 5,
+            "node_ids": [
+              "customer-db",
+              "fraud-engine",
+              "notification-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -5,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "explanation": "Technical risk is low (17) because direct services (+12) on account-service, payment-service; dependency depth (+5) on customer-db, fraud-engine, notification-service and 1 more; small, contained change (-5) on account-service, payment-service."
+      },
+      {
+        "name": "operational",
+        "score": 44,
+        "level": "medium",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "service criticality",
+            "points": 40,
+            "node_ids": [
+              "payment-service"
+            ]
+          },
+          {
+            "label": "downstream systems",
+            "points": 8,
+            "node_ids": [
+              "customer-db",
+              "fraud-engine",
+              "notification-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "deployment groups",
+            "points": 6,
+            "node_ids": [
+              "account-service",
+              "customer-db",
+              "fraud-engine",
+              "notification-service",
+              "payment-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -15,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "explanation": "Operational risk is medium (44) because service criticality (+40) on payment-service; downstream systems (+8) on customer-db, fraud-engine, notification-service and 1 more; deployment groups (+6) on account-service, customer-db, fraud-engine and 3 more."
+      },
+      {
+        "name": "performance",
+        "score": 30,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "transaction path",
+            "points": 20,
+            "node_ids": [
+              "payment-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "payment business rule",
+            "points": 15,
+            "node_ids": [
+              "payment-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -10,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "explanation": "Performance risk is low (30) because transaction path (+20) on payment-service, transaction-db; payment business rule (+15) on payment-service, transaction-db; small, contained change (-10) on account-service, payment-service."
+      },
+      {
+        "name": "delivery",
+        "score": 23,
+        "level": "low",
+        "factors": [
+          {
+            "label": "baseline",
+            "points": 5,
+            "node_ids": []
+          },
+          {
+            "label": "low ambiguity",
+            "points": 10,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          },
+          {
+            "label": "direct services",
+            "points": 10,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          },
+          {
+            "label": "owner coordination",
+            "points": 8,
+            "node_ids": [
+              "account-service",
+              "customer-db",
+              "fraud-engine",
+              "notification-service",
+              "payment-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "label": "small, contained change",
+            "points": -10,
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "explanation": "Delivery risk is low (23) because low ambiguity (+10) on account-service, payment-service; direct services (+10) on account-service, payment-service; owner coordination (+8) on account-service, customer-db, fraud-engine and 3 more."
+      }
+    ],
+    "overall": 39,
+    "highest": "operational",
+    "change_size": "small",
+    "change_size_reason": "a contained change in one or two services, with no API, schema or login change"
+  },
+  "tests": {
+    "tests": [
+      {
+        "id": "TC-014",
+        "title": "Payment creation returns the same instruction for a repeated idempotency key",
+        "type": "api",
+        "priority": "P1",
+        "covers": [
+          "payment-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Payment creation returns the same instruction for a repeated idempotency key.",
+          "Execute the scenario: Payment creation returns the same instruction for a repeated idempotency key.",
+          "Check the documented outcome for Payment creation returns the same instruction for a repeated idempotency key."
+        ],
+        "expected": "Payment creation returns the same instruction for a repeated idempotency key meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-013",
+        "title": "Payments reject amounts exceeding the remaining daily account limit",
+        "type": "functional",
+        "priority": "P1",
+        "covers": [
+          "payment-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Payments reject amounts exceeding the remaining daily account limit.",
+          "Execute the scenario: Payments reject amounts exceeding the remaining daily account limit.",
+          "Check the documented outcome for Payments reject amounts exceeding the remaining daily account limit."
+        ],
+        "expected": "Payments reject amounts exceeding the remaining daily account limit meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-043",
+        "title": "Premium payment limit enforcement agrees with posted daily ledger totals",
+        "type": "integration",
+        "priority": "P1",
+        "covers": [
+          "account-service",
+          "payment-service",
+          "transaction-db"
+        ],
+        "steps": [
+          "Prepare fixtures for Premium payment limit enforcement agrees with posted daily ledger totals.",
+          "Execute the scenario: Premium payment limit enforcement agrees with posted daily ledger totals.",
+          "Check the documented outcome for Premium payment limit enforcement agrees with posted daily ledger totals."
+        ],
+        "expected": "Premium payment limit enforcement agrees with posted daily ledger totals meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-044",
+        "title": "Fraud decline leaves the payment ledger unchanged and records its decision",
+        "type": "integration",
+        "priority": "P1",
+        "covers": [
+          "fraud-engine",
+          "payment-service",
+          "transaction-db"
+        ],
+        "steps": [
+          "Prepare fixtures for Fraud decline leaves the payment ledger unchanged and records its decision.",
+          "Execute the scenario: Fraud decline leaves the payment ledger unchanged and records its decision.",
+          "Check the documented outcome for Fraud decline leaves the payment ledger unchanged and records its decision."
+        ],
+        "expected": "Fraud decline leaves the payment ledger unchanged and records its decision meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      },
+      {
+        "id": "TC-047",
+        "title": "Velocity screening consumes the risk signal for card-not-present payments",
+        "type": "integration",
+        "priority": "P1",
+        "covers": [
+          "fraud-engine",
+          "payment-service"
+        ],
+        "steps": [
+          "Prepare fixtures for Velocity screening consumes the risk signal for card-not-present payments.",
+          "Execute the scenario: Velocity screening consumes the risk signal for card-not-present payments.",
+          "Check the documented outcome for Velocity screening consumes the risk signal for card-not-present payments."
+        ],
+        "expected": "Velocity screening consumes the risk signal for card-not-present payments meets its documented acceptance criteria.",
+        "source": "catalog",
+        "automation_candidate": true
+      }
+    ],
+    "coverage_estimate": 0.6666666666666666,
+    "effort_hours": 0.7,
+    "automation_candidates": 5,
+    "summary": "Selected 5 catalog tests and 0 new tests, covering 4 of 6 impacted nodes (67%); estimated effort is 0.7 hours."
+  },
+  "compliance": {
+    "frameworks": [
+      {
+        "framework": "GDPR",
+        "applicable": true,
+        "reason": "PII-bearing components are impacted; the change touches customer data.",
+        "risk_level": "low",
+        "score": 80,
+        "findings": [
+          {
+            "text": "The change makes payment-service read premium eligibility and the effective account limit from account-service before accepting a payment (for example via account-service.limits-read). Premium status and limit values are customer-linked attributes, so the cross-service flow broadens the processing context and should be assessed for data minimisation and purpose limitation.",
+            "node_ids": [
+              "payment-service",
+              "account-service"
+            ]
+          },
+          {
+            "text": "account-service and customer-db hold customer profile and identity data classified as PII; the change extends the use of those records into payment-limit enforcement, so the documented basis, retention and permitted secondary use for that access should be confirmed.",
+            "node_ids": [
+              "account-service",
+              "customer-db"
+            ]
+          },
+          {
+            "text": "notification-service sits downstream of payment-service and delivers consent-aware messages to verified destinations. Higher-limit premium customers may generate different notification content or volume, so consent state, channel preferences and destination verification should be re-checked against the new behaviour.",
+            "node_ids": [
+              "notification-service",
+              "payment-service"
+            ]
+          },
+          {
+            "text": "Feature-flag toggling introduces differentiated treatment by premium status and can create new log and audit entries. Exposure exists if those records, or the limit/eligibility responses, retain or disclose more personal data than the purpose requires.",
+            "node_ids": [
+              "payment-service",
+              "account-service",
+              "transaction-db"
+            ]
+          }
+        ],
+        "recommendations": [
+          "Confirm that data-minimisation, purpose and retention documentation covers the new premium-eligibility and effective-limit reads on payment-service and account-service before the change proceeds.",
+          "Verify access controls and privacy regression tests covering the new cross-service calls between payment-service and account-service, including account-service.limits-read.",
+          "Confirm that new limit, eligibility and flag-related logging on payment-service, account-service and transaction-db excludes personal data that is not needed for the stated purpose.",
+          "Check that notification content and channel handling on notification-service continues to honour customer consent and preferences for the affected premium population."
+        ]
+      },
+      {
+        "framework": "PCI DSS",
+        "applicable": false,
+        "reason": "No impacted card-data component and no card-data touch.",
+        "risk_level": null,
+        "score": null,
+        "findings": [],
+        "recommendations": []
+      },
+      {
+        "framework": "SOX",
+        "applicable": true,
+        "reason": "financial-data components are impacted; the change touches financial data.",
+        "risk_level": "low",
+        "score": 90,
+        "findings": [
+          {
+            "text": "The change alters daily limit enforcement on the payment path, which is a business rule that governs which payments are accepted and posted. This creates control exposure over authorisation, overrides and change evidence, and should be covered by control-owner approval before the change takes effect.",
+            "node_ids": [
+              "payment-service",
+              "account-service"
+            ]
+          },
+          {
+            "text": "Remaining daily allowance is computed from transaction-db ledger reads, such as transaction-db.daily-total, and must remain accurate under concurrent requests. Weakness in that read or in the concurrency handling would affect both limit enforcement and ledger reconciliation.",
+            "node_ids": [
+              "transaction-db",
+              "payment-service"
+            ]
+          },
+          {
+            "text": "Raising the limit changes the population and value range of payments routed to fraud-engine screening. Coverage, rule thresholds and audit records for the higher-value band should be reconfirmed so screening evidence remains complete.",
+            "node_ids": [
+              "fraud-engine",
+              "payment-service"
+            ]
+          },
+          {
+            "text": "transaction-db posts balanced entries and replicates change data to the reporting store. The change should be checked to confirm that posting integrity, idempotency and downstream reporting reconciliation are unaffected by the new limit logic.",
+            "node_ids": [
+              "transaction-db",
+              "payment-service"
+            ]
+          }
+        ],
+        "recommendations": [
+          "Reconcile financial results and verify complete, immutable audit records for account-service, payment-service and transaction-db.",
+          "Document control-owner approval and test the limit-enforcement and remaining-allowance logic, including concurrent request handling, for payment-service and transaction-db.",
+          "Confirm that fraud screening controls and audit evidence on fraud-engine still cover the higher payment value band introduced for payment-service.",
+          "Verify that the feature flag has an auditable activation record and documented rollback, and that ledger posting and change-data replication behaviour on transaction-db is unchanged."
+        ]
+      },
+      {
+        "framework": "Internal Governance",
+        "applicable": true,
+        "reason": "directly changed components have criticality >= 8.",
+        "risk_level": "low",
+        "score": 85,
+        "findings": [
+          {
+            "text": "account-service and payment-service are tier-1 core components with high criticality, and the change modifies behaviour on both. Service-owner approval, change records and the rollback position should be evidenced for both.",
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          },
+          {
+            "text": "The change couples the core-banking and core-payments deployment groups through a new account-service limit and eligibility read consumed by payment-service, and adds a feature flag. This raises coordination exposure over rollout sequencing, flag governance and rollback.",
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          },
+          {
+            "text": "payment-service gains runtime dependency on account-service and on transaction-db daily totals. New interface contracts, timeouts, fallback behaviour and operational monitoring should be confirmed so a dependency failure does not leave limit enforcement undefined.",
+            "node_ids": [
+              "payment-service",
+              "account-service",
+              "transaction-db"
+            ]
+          },
+          {
+            "text": "The premium versus standard limit distinction needs authorization and negative-path testing evidence, since incorrect eligibility resolution could grant the higher limit to customers who do not qualify.",
+            "node_ids": [
+              "account-service",
+              "payment-service"
+            ]
+          }
+        ],
+        "recommendations": [
+          "Obtain service-owner change approval and record a rollback plan for account-service, payment-service and transaction-db.",
+          "Verify authorization tests, operational monitoring and release evidence for account-service and payment-service, including the premium eligibility check.",
+          "Confirm feature-flag governance for the payments release window: who may toggle it, how activation is recorded, and the documented rollback path for payment-service.",
+          "Check interface-change documentation and dependency monitoring for the new account-service limit and eligibility reads consumed by payment-service."
+        ]
+      }
+    ],
+    "overall_score": 80,
+    "summary": "3 of 4 frameworks apply; the minimum compliance score is 80/100. 0 applicable framework(s) have high risk."
+  },
+  "release": {
+    "confidence": 70,
+    "decision": "GO",
+    "triggered_rules": [
+      "GO: no blocking or conditional release rules fired"
+    ],
+    "conditions": [],
+    "complexity": "medium",
+    "rollback_plan": [
+      "Disable the approved feature flag for payment-service, roll back the core-payments group first in reverse deployment order, and notify the release owner.",
+      "Roll back the core-banking group and verify account-service and transaction-db return to their prior behavior.",
+      "Roll back the customer-platform group and communicate rollback completion to owners/stakeholders."
+    ],
+    "deployment_notes": [
+      "Deploy the customer-platform group first and verify customer-db and notification-service health before proceeding.",
+      "Deploy the core-banking group next and verify account-service and transaction-db dependencies remain healthy.",
+      "Deploy the core-payments group last, enable the approved feature flag, monitor payment-service and fraud-engine, and send completion updates to owners/stakeholders."
+    ]
+  },
+  "providers_used": {
+    "requirement": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+    "dependency": "deterministic",
+    "scoring": "deterministic",
+    "testing": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+    "compliance": "tokenharbor:deepseek-v4.1-flash:free",
+    "release": "tokenharbor:deepseek-v4.1-flash:free"
+  },
+  "duration_ms": 18,
+  "created_at": "2026-10-08T07:29:49.485100Z"
+}

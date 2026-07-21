@@ -1,0 +1,10 @@
+{
+  "answer": "- **Directly changed services:** mobile‑banking, authentication‑service [impact.directly_changed]  \n- **Other impacted services:** account‑service, api‑gateway, card‑service, crm, customer‑db, customer‑service, document‑service, loan‑service, payment‑service [impact.services]  \n- **Databases:** customer‑db [impact.databases]  \n- **APIs impacted:**  \n  - GET /accounts/{id}/limits  \n  - GET /internal/customer-store/profiles/{id}  \n  - PATCH /cards/{id}/status  \n  - PATCH /customers/{id}/profile  \n  - PATCH /mobile/cards/{id}/status  \n  - POST /auth/biometric/challenges  \n  - POST /auth/introspect  \n  - POST /auth/step-up  \n  - POST /auth/token  \n  - POST /loans/applications  \n  - POST /mobile/login  \n  - POST /mobile/payments  \n  - POST /payments  \n  - PUT /internal/customer-store/profiles/{id} [impact.apis]  \n- **Downstream services:** account‑service, api‑gateway, card‑service, crm, customer‑db, customer‑service, document‑service, loan‑service, payment‑service [impact.downstream]  \n- **Deployment groups:** channels‑mobile, core‑banking, core‑payments, customer‑platform, documents, identity [impact.deployment_groups]",
+  "cited_nodes": [
+    "crm"
+  ],
+  "cited_factors": [
+    "deployment groups"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

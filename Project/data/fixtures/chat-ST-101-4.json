@@ -1,0 +1,13 @@
+{
+  "answer": "The analysis context does not explain how release confidence is derived — it only supplies the computed values, so I can't give the reason.\n\nSupplied release data (not recalculated):\n- **confidence: 70**\n- **decision: GO**\n- **triggered_rules:** \"GO: no blocking or conditional release rules fired\"\n- **conditions:** none\n- **complexity:** medium\n\nContext that exists but is *not* stated as a cause of the confidence value:\n- Risk dimensions: operational 44 (medium) with top factor \"service criticality\" 40 pts on `payment-service`; compliance 40 (medium) with \"pii data\" 20 pts on `account-service` and \"financial data\" 20 pts on `account-service`,`payment-service`.\n- Compliance summary: 3 of 4 frameworks apply, minimum compliance score 80/100, 0 high-risk frameworks.\n\nIf you need the actual rationale for the 70, it is not in this JSON — say so and I can't supply it from here.",
+  "cited_nodes": [
+    "account-service",
+    "payment-service"
+  ],
+  "cited_factors": [
+    "pii data",
+    "financial data",
+    "service criticality"
+  ],
+  "provider": "tokenharbor:deepseek-v4.1-flash:free"
+}

@@ -1,0 +1,26 @@
+{
+  "answer": "Release confidence is reported as **58** with decision **GO_WITH_CONDITIONS**. The analysis does not state a single cause; the supplied triggers are:\n\n**Triggered rules (as given)**\n- Highest risk is **61 (>= 60)** — compliance dimension score 61, level medium.\n- **GDPR risk is high** — score 55, reasons/findings anchored on `customer-service`, `customer-db`, `crm` (new PII fields, minimisation/purpose/retention) and `notification-service` (consent, verified-destination, stop-on-withdrawal).\n- **PCI DSS risk is medium** — score 75, driven by `card-service` + `customer-db` (\"nearby card data\" factor) despite change_type not touching card data.\n- **SOX risk is medium** — score 75, via `audit-db` and `customer-db` (\"database schema change\") and downstream `account-service`, `payment-service`, `loan-service`.\n\n**Contributing risk dimensions (supplied scores)**\n- compliance 61 (medium): factors \"pii data\" 20 (`crm`,`customer-db`,`customer-service`,`notification-service`), \"nearby card data\" 12 (`card-service`), \"database schema change\" 10 (`audit-db`,`customer-db`).\n- technical 58 (medium): \"database schema change\" 20 (`audit-db`,`customer-db`), \"direct services\" 18 (`crm`,`customer-service`,`notification-service`), \"new feature\" 10.\n- operational 53 (medium): \"service criticality\" 32 (`customer-service`), \"downstream systems\" 10.\n- delivery 46 (medium): \"owner coordination\" 16, \"direct services\" 15, low ambiguity 10.\n- security 38 / performance 25 (low). Overall risk 57, highest dimension **compliance**.\n\n**Other supplied context**\n- Many open conditions (P1 tests TC-010, TC-030, TC-009, TC-029, TC-045, TC-053, GEN-1..GEN-5 plus GDPR/PCI/SOX/governance review items) must be completed before rollout — these are conditions, not stated as the numeric cause of confidence.\n- Rollback is cross-group (`core-payments` → `core-banking` → `customer-platform` → `data-platform`), which is stated in the deployment/rollback plan, not attributed to the confidence score.\n\nIf you want a causal weighting, the context provides only the triggered rules above; it does not decompose the confidence value beyond them.",
+  "cited_nodes": [
+    "customer-service",
+    "account-service",
+    "payment-service",
+    "loan-service",
+    "card-service",
+    "crm",
+    "notification-service",
+    "customer-db",
+    "audit-db"
+  ],
+  "cited_factors": [
+    "pii data",
+    "nearby card data",
+    "database schema change",
+    "direct services",
+    "new feature",
+    "service criticality",
+    "downstream systems",
+    "low ambiguity",
+    "owner coordination"
+  ],
+  "provider": "tokenharbor:deepseek-v4.1-flash:free"
+}

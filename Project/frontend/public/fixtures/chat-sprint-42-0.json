@@ -1,0 +1,6 @@
+{
+  "answer": "- **Applications impacted:** 17  \n- **Dependencies impacted:** 19  \n\n*(Source: sprint summary – “6 stories impact 17 applications and 19 dependencies”)*【sprint-42】",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

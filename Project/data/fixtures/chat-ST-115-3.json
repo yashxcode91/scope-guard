@@ -1,0 +1,6 @@
+{
+  "answer": "No stories are risky in the provided context. The only story (ST‑115) has an overall risk score of 12 (low), with all risk dimensions rated as low.",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

@@ -1,0 +1,15 @@
+{
+  "answer": "Risk is high because the **security** dimension scores **73 (high)**, driven by the following top factors:\n\n- **auth flow change** – +25 points (affects `authentication-service`, `mobile-banking`)  \n- **customer data** – +20 points (affects `api-gateway`, `authentication-service`, `customer-db`, `mobile-banking`)  \n- **critical identity path** – +10 points (affects `api-gateway`, `authentication-service`)  \n\nThese factors push the overall risk score to 64, with security being the highest‑scoring dimension.",
+  "cited_nodes": [
+    "mobile-banking",
+    "authentication-service",
+    "api-gateway",
+    "customer-db"
+  ],
+  "cited_factors": [
+    "customer data",
+    "auth flow change",
+    "critical identity path"
+  ],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

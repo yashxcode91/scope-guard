@@ -1,0 +1,6 @@
+{
+  "answer": "The release confidence is **not low**—it is **94 %** (see the “release.confidence” field), which indicates a high level of confidence in the release. Therefore, there is no basis for describing the confidence as low.",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}

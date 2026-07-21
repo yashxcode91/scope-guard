@@ -1,0 +1,34 @@
+{
+  "answer": "- **Affected capabilities:** Card freeze/unfreeze self-service controls; step-up authentication and proof binding; mobile banking card management; API authorization policy enforcement; PCI DSS compliance and masked trace handling.\n- **Directly changed services:** `mobile-banking`, `api-gateway`, `card-service`, `authentication-service`.\n- **Broader impacted services:** `account-service`, `atm`, `branch-portal`, `crm`, `customer-db`, `customer-service`, `document-service`, `fraud-engine`, `loan-service`, `notification-service`, `payment-service`, `reporting-db`, `reporting-service`, `risk-engine`, `transaction-db`, `web-banking`.\n- **Databases:** `customer-db`, `reporting-db`, `transaction-db`.\n- **Deployment groups:** `channels-access`, `channels-mobile`, `core-banking`, `core-payments`, `customer-platform`, `data-platform`, `documents`, `identity`.\n- **APIs:** impact context includes the changed card/auth endpoints such as `PATCH /mobile/cards/{id}/status`, `PATCH /cards/{id}/status`, `POST /auth/step-up`, `POST /auth/introspect`, `POST /auth/token`, plus the wider API list supplied in `impact.apis`.\n- **Risk impact:** overall risk `85`, highest risk `security` `93`; compliance `75`; technical `49`; operational `71`; performance `40`; delivery `87`. Release decision: `NO_GO`, confidence `39`.\n- **Key risk factors:** security `card data` (25 pts: `atm`, `card-service`, `fraud-engine`), `auth flow change` (25 pts: `api-gateway`, `authentication-service`, `card-service`, `mobile-banking`), `external API contract` (15 pts: same four); compliance `card data` (30 pts: `card-service`), `pii data` (20 pts: `api-gateway`, `authentication-service`, `card-service`, `mobile-banking`), `financial data` (20 pts: `api-gateway`, `mobile-banking`).",
+  "cited_nodes": [
+    "mobile-banking",
+    "web-banking",
+    "atm",
+    "branch-portal",
+    "customer-service",
+    "account-service",
+    "payment-service",
+    "loan-service",
+    "card-service",
+    "crm",
+    "authentication-service",
+    "notification-service",
+    "api-gateway",
+    "document-service",
+    "customer-db",
+    "transaction-db",
+    "reporting-db",
+    "fraud-engine",
+    "risk-engine",
+    "reporting-service"
+  ],
+  "cited_factors": [
+    "card data",
+    "auth flow change",
+    "external API contract",
+    "pii data",
+    "financial data",
+    "deployment groups"
+  ],
+  "provider": "tokenharbor:deepseek-v4.1-flash:free"
+}

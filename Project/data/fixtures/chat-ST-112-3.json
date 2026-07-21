@@ -1,0 +1,6 @@
+{
+  "answer": "- ST-112 (Biometric login for mobile banking) – overall risk score 64, decision GO_WITH_CONDITIONs, indicating it is considered risky and requires mitigation conditions.【{\"id\":\"ST-112\",\"risk\":{\"overall\":64},\"release\":{\"decision\":\"GO_WITH_CONDITIONS\"}}】",
+  "cited_nodes": [],
+  "cited_factors": [],
+  "provider": "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+}
